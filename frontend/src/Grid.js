@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Grid.css";
 
 const Grid = () => {
-  const [grid, setGrid] = useState(createGrid(20, 20)); 
+  const [grid, setGrid] = useState(createGrid(5, 5));
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [path, setPath] = useState([]);
@@ -23,6 +23,7 @@ const Grid = () => {
         start: { x: start[0], y: start[1] },
         end: { x: selectedEnd[0], y: selectedEnd[1] },
       });
+      console.log("Path found:", response.data.path);
       setPath(response.data.path);
     } catch (error) {
       console.error("Error fetching path:", error);
