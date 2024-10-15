@@ -31,57 +31,104 @@ func isValid(x, y int, gridSize int, visited [][]bool) bool {
 	return x >= 0 && y >= 0 && x < gridSize && y < gridSize && !visited[x][y]
 }
 
-func dfs(gridSize int, start, end Coordinate) []Coordinate {
+func bfs(gridSize int, start, end Coordinate) []Coordinate {
 	visited := make([][]bool, gridSize)
 	for i := range visited {
 		visited[i] = make([]bool, gridSize)
 	}
 
-	var path []Coordinate
-	var found bool
+	var queue []Coordinate
+	var parent = make(map[Coordinate]Coordinate)
 
-	
-	var dfsHelper func(x, y int) bool
-	dfsHelper = func(x, y int) bool {
-		if x == end.X && y == end.Y { 
-			path = append(path, Coordinate{x, y})
+	visited[start.X][start.Y] = true
+	queue = append(queue, start)
+
+	found := false
+
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+
+		if current.X == end.X && current.Y == end.Y {
 			found = true
-			return true
+			break
 		}
 
-		if !isValid(x, y, gridSize, visited) { 
-			return false
-		}
+		for _, dir := range directions {
+			nextX := current.X + dir[0]
+			nextY := current.Y + dir[1]
+			nextCoord := Coordinate{nextX, nextY}
 
-		visited[x][y] = true              
-		path = append(path, Coordinate{x, y}) 
-
-		for _, dir := range directions { 
-			if dfsHelper(x+dir[0], y+dir[1]) {
-				return true
+			if isValid(nextX, nextY, gridSize, visited) {
+				visited[nextX][nextY] = true
+				queue = append(queue, nextCoord)
+				parent[nextCoord] = current
 			}
 		}
-		path = path[:len(path)-1]
-		return false
 	}
-
-	dfsHelper(start.X, start.Y)
 
 	if found {
+		var path []Coordinate
+		for at := end; at != start; at = parent[at] {
+			path = append([]Coordinate{at}, path...) 
+		}
+		path = append([]Coordinate{start}, path...)
 		return path
 	}
+
 	return []Coordinate{} 
 }
 
+// func dfs(gridSize int, start, end Coordinate) []Coordinate {
+// 	visited := make([][]bool, gridSize)
+// 	for i := range visited {
+// 		visited[i] = make([]bool, gridSize)
+// 	}
+// 	shortestPath := []Coordinate{}
+// 	var path []Coordinate
+	
+// 	var dfsHelper func(x, y int) 
+// 	dfsHelper = func(x, y int) {
+// 		if x == end.X && y == end.Y { 
+// 			// path = append(path, Coordinate{x, y})
+// 			if len(path) < len(shortestPath) || len(shortestPath) == 0 {
+// 					shortestPath = append([]Coordinate{}, path...)
+// 			} 
+// 			fmt.Println("Shortest path", shortestPath)
+// 			return
+// 		}
+
+// 		if !isValid(x, y, gridSize, visited) { 
+// 			return
+// 		}
+
+// 		visited[x][y] = true              
+// 		path = append(path, Coordinate{x, y})
+// 		if len(path) > len(shortestPath) && len(shortestPath) != 0 {
+// 			return
+// 		} 
+
+// 		for _, dir := range directions { 
+// 			dfsHelper(x+dir[0], y+dir[1]) 
+// 		}
+		
+// 		path = path[:len(path)-1]
+// 		fmt.Println(path)
+// 	}
+
+// 	dfsHelper(start.X, start.Y)
+// 	return append(shortestPath, end)
+// }
 
 func findPathHandler(w http.ResponseWriter, r *http.Request) {
 	var req PathRequest
+	fmt.Println("Request received", req.Start, req.End)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	path := dfs(20, req.Start, req.End)
+	path := bfs(20, req.Start, req.End)
 
 	resp := PathResponse{
 		Path: path,

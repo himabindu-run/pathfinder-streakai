@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Grid.css";
 
 const Grid = () => {
-  const [grid, setGrid] = useState(createGrid(5, 5));
+  const [grid, setGrid] = useState(createGrid(20, 20));
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [path, setPath] = useState([]);
