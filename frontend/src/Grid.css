@@ -1,0 +1,25 @@
+.grid {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 400px;
+}
+.row {
+    display: flex;
+}
+.cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.start {
+    background-color: green;
+}
+.end {
+    background-color: red;
+}
+.path {
+    background-color: blue;
+}
